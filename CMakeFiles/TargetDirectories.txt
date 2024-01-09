@@ -1,0 +1,4 @@
+/home/xilinxtool/cpp/webserver/mySylar/CMakeFiles/rebuild_cache.dir
+/home/xilinxtool/cpp/webserver/mySylar/CMakeFiles/edit_cache.dir
+/home/xilinxtool/cpp/webserver/mySylar/CMakeFiles/test.dir
+/home/xilinxtool/cpp/webserver/mySylar/CMakeFiles/sylar.dir
