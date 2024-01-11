@@ -1,21 +1,34 @@
-cmake_minimum_required(VERSION 2.8)
-project(sylar)
+cmake_minimum_required(VERSION 2.8) #设置最低版本
+project(sylar) #指定工程
 
-set (CMAKE_VERBOSE_MAKEFILE ON)
+set (CMAKE_VERBOSE_MAKEFILE ON) 
 set (CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -O0 -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function")
 
+include_directories(.)
+include_directories(/usr/local/include)
 
-set (LIB_SRC
+link_directories(/usr/local/lib)
+
+find_library(YAMLCPP yaml-cpp)
+message("***", ${YAMLCPP})
+
+set (LIB_SRC   #定义变量 libsrc
      sylar/log.cc
      sylar/util.cc
+     sylar/config.cc
     )
 
-add_library(sylar SHARED ${LIB_SRC})
+add_library(sylar SHARED ${LIB_SRC}) #生成库文件 通过变量生辰共享 库
 #add_library(sylar_static STATIC ${LIB_SRC})
 
-add_executable(test tests/test.cc)
+add_executable(test tests/test.cc) #生成可执行文件 第一个变量为可执行文件 名字
 add_dependencies(test sylar)
-target_link_libraries(test sylar)
+target_link_libraries(test sylar ${YAMLCPP})
+
+
+add_executable(test_config tests/test_config.cc)
+add_dependencies(test_config sylar)
+target_link_libraries(test_config sylar ${YAMLCPP})
 
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
