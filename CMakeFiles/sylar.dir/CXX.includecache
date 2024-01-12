@@ -6,12 +6,8 @@
 
 #IncludeRegexTransform: 
 
-/home/xilinxtool/cpp/webserver/mySylar/sylar/config.cc
-../sylar/config.h
 /home/xilinxtool/cpp/webserver/mySylar/sylar/config.h
-
-/home/xilinxtool/cpp/webserver/mySylar/sylar/config.h
-../sylar/log.h
+./log.h
 /home/xilinxtool/cpp/webserver/mySylar/sylar/log.h
 boost/lexical_cast.hpp
 -
@@ -36,6 +32,30 @@ unordered_set
 vector
 -
 yaml-cpp/yaml.h
+-
+
+/home/xilinxtool/cpp/webserver/mySylar/sylar/log.cc
+log.h
+/home/xilinxtool/cpp/webserver/mySylar/sylar/log.h
+config.h
+/home/xilinxtool/cpp/webserver/mySylar/sylar/config.h
+util.h
+/home/xilinxtool/cpp/webserver/mySylar/sylar/util.h
+cstddef
+-
+functional
+-
+iostream
+-
+iterator
+-
+map
+-
+sstream
+-
+string.h
+-
+time.h
 -
 
 /home/xilinxtool/cpp/webserver/mySylar/sylar/log.h

@@ -8,6 +8,7 @@ CMakeFiles/sylar.dir/sylar/config.cc.o
  /home/xilinxtool/cpp/webserver/mySylar/sylar/singleton.h
  /home/xilinxtool/cpp/webserver/mySylar/sylar/util.h
 CMakeFiles/sylar.dir/sylar/log.cc.o
+ /home/xilinxtool/cpp/webserver/mySylar/sylar/config.h
  /home/xilinxtool/cpp/webserver/mySylar/sylar/log.cc
  /home/xilinxtool/cpp/webserver/mySylar/sylar/log.h
  /home/xilinxtool/cpp/webserver/mySylar/sylar/singleton.h
