@@ -61,7 +61,14 @@ LogEventWrap::~LogEventWrap() {
 void LogEvent::format(const char *fmt, ...) {
     va_list al;
     va_start(al, fmt);
+    // va_start是一个宏，用来初始化va_list变量，以便开始遍历可变参数列表。
+    // 它接受两个参数，第一个参数是va_list变量，
+    // 第二个参数是可变参数列表中固定参数的最后一个参数。
+    // va_start宏会根据固定参数的位置计算可变参数列表的起始位置。
     format(fmt, al);
+
+    // va_end是一个宏，用来清理va_list变量。
+    // 它接受一个参数，即va_list变量，用于结束对可变参数列表的遍历和处理。
     va_end(al);
 }
 
@@ -85,6 +92,7 @@ void LogAppender::setFormatter(LogFormatter::ptr val) {
     }
 }
 
+// 各种格式
 class MessageFormatItem : public LogFormatter::FormatItem {
   public:
     MessageFormatItem(const std::string &str = "") {}
@@ -299,7 +307,7 @@ FileLogAppender::FileLogAppender(const std::string &filename)
     reopen();
 }
 
-void FileLogAppender::log(std::shared_ptr<Logger> logger, LogLevel::Level level,
+void FileLogAppender::log(Logger::ptr logger, LogLevel::Level level,
                           LogEvent::ptr event) {
     if (level >= m_level) {
         m_filestream << m_formatter->format(logger, level, event);
@@ -330,8 +338,8 @@ bool FileLogAppender::reopen() {
     return !!m_filestream;
 }
 
-void StdoutLogAppender::log(std::shared_ptr<Logger> logger,
-                            LogLevel::Level level, LogEvent::ptr event) {
+void StdoutLogAppender::log(Logger::ptr logger, LogLevel::Level level,
+                            LogEvent::ptr event) {
     if (level >= m_level) {
         std::cout << m_formatter->format(logger, level, event);
     }
@@ -355,32 +363,34 @@ LogFormatter::LogFormatter(const std::string &pattern) : m_pattern(pattern) {
     init();
 }
 
-std::string LogFormatter::format(std::shared_ptr<Logger> logger,
-                                 LogLevel::Level level, LogEvent::ptr event) {
+std::string LogFormatter::format(Logger::ptr logger, LogLevel::Level level,
+                                 LogEvent::ptr event) {
     std::stringstream ss;
     for (auto &i : m_items) {
         i->format(ss, logger, level, event);
     }
     return ss.str();
 }
-
+// 初始化格式器
 void LogFormatter::init() {
     // str, format, type
     std::vector<std::tuple<std::string, std::string, int>> vec;
     std::string nstr;
     for (size_t i = 0; i < m_pattern.size(); ++i) {
+        // 如果字符不是% ，就将模式的字符加入到nstr中并结束循环
         if (m_pattern[i] != '%') {
             nstr.append(1, m_pattern[i]);
             continue;
         }
-
+        // 如果字符是%
+        // 判断下一个字符串是不是%，如果是%，就继续加入nstr中并结束循环
         if ((i + 1) < m_pattern.size()) {
             if (m_pattern[i + 1] == '%') {
                 nstr.append(1, '%');
                 continue;
             }
         }
-
+        // 下一个字符不是%
         size_t n = i + 1;
         int fmt_status = 0;
         size_t fmt_begin = 0;
@@ -388,11 +398,13 @@ void LogFormatter::init() {
         std::string str;
         std::string fmt;
         while (n < m_pattern.size()) {
+            // 如果状态=0，并且当前模式字符串的元素不是字母、{、}
             if (!fmt_status && (!isalpha(m_pattern[n]) && m_pattern[n] != '{' &&
                                 m_pattern[n] != '}')) {
                 str = m_pattern.substr(i + 1, n - i - 1);
                 break;
             }
+            // 状态为0
             if (fmt_status == 0) {
                 if (m_pattern[n] == '{') {
                     str = m_pattern.substr(i + 1, n - i - 1);

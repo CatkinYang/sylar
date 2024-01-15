@@ -58,7 +58,7 @@ class LoggerManager;
 // 日志级别
 class LogLevel {
   public:
-    enum Level {
+    enum Level { // 枚举
         UNKNOW = 0,
         DEBUG = 1,
         INFO = 2,
@@ -66,18 +66,43 @@ class LogLevel {
         ERROR = 4,
         FATAL = 5
     };
+    // 静态成员函数，
+    // 与实例无关。不需要通过对象来动用，可以直接通过类名或类的对象来调用。
+    // 用来实现与类相关的操作而不是特定的对象实例相关的操作
+    // 静态成员函数可以访问类的静态数据成员和其他静态成员函数，但不能直接访问普通成员变量和成员函数，
+    // 因为静态成员函数没有this指针。
+    // 此外，静态成员函数不能声明为const的，也不能使用virtual和override关键字。
+    // 静态成员函数的声明和定义中通常不需要指定static关键字。
+    // 用来将等级转换成字符串
+    // 调用静态成员函数可以使用类名或类的对象
     static const char *ToString(LogLevel::Level level);
+    // 从字符串得到等级
     static LogLevel::Level FromString(const std::string &str);
 };
 
 // 日记事件
 class LogEvent {
   public:
-    typedef std::shared_ptr<LogEvent> ptr;
+    // 别名 智能指针
+    // std::shared_ptr通过一个引用计数来跟踪有多少个std::shared_ptr指向相同的对象。
+    // 每当创建shared_ptr指向一个对象时，引用计数会增加；当std::shared_ptr超出作用域、被重置或赋予一个新值时
+    // 或者通过std::shared_ptr的reset方法手动释放对象，引用计数会减少。
+    // 只有当引用计数为零时，std::shared_ptr才会释放所指向的对象。
+    // std::shared_ptr还可以自动确保在多线程环境下对所指向对象的安全访问，
+    // 使用引用计数来跟踪引用关系可能会导致引用循环（循环引用），从而导致对象永远无法被释放。
+    // 为避免出现这种情况，可以使用std::weak_ptr来打破循环引用
+    using ptr = std::shared_ptr<LogEvent>;
+    // 构造函数
+    // 构造函数在创建对象时被自动调用，用于对对象的成员变量进行初始化。
+    // 构造函数的名称与类名相同，不返回任何类型，也不需要显式声明返回类型。
+    // 构造函数可以有多个重载版本，它们的参数个数或类型不同。
+    // 如果没有显式地定义构造函数，编译器会为类生成默认构造函数，该默认构造函数不带参数，并执行空操作
+    // 在派生类中，可以通过初始化列表调用基类的构造函数，以确保基类部分的对象在派生类构造函数执行之前先被构造；
+    // 同时，派生类的析构函数会在基类的析构函数执行完毕后被调用
     LogEvent(std::shared_ptr<Logger> logger, LogLevel::Level level,
              const char *file, int32_t m_line, uint32_t elapse,
              uint32_t thread_id, uint32_t fiber_id, uint64_t time);
-
+    // 一系列访问私有成员变量的操作
     const char *getFile() const { return m_file; }
     int32_t getLine() const { return m_line; }
     uint32_t getElapse() const { return m_elapse; }
@@ -87,8 +112,8 @@ class LogEvent {
     std::string getContent() const { return m_ss.str(); }
     std::shared_ptr<Logger> getLogger() const { return m_logger; }
     LogLevel::Level getLevel() const { return m_level; }
-
     std::stringstream &getSS() { return m_ss; }
+
     void format(const char *fmt, ...);
     void format(const char *fmt, va_list al);
 
@@ -101,8 +126,8 @@ class LogEvent {
     u_int64_t m_time = 0;         // 时间戳
     std::stringstream m_ss;       // 内容
 
-    std::shared_ptr<Logger> m_logger;
-    LogLevel::Level m_level;
+    std::shared_ptr<Logger> m_logger; // 日志器
+    LogLevel::Level m_level;          // 日志级别
 };
 
 // 日志事件包装器
@@ -120,16 +145,16 @@ class LogEventWrap {
 // 日志格式器
 class LogFormatter {
   public:
-    typedef std::shared_ptr<LogFormatter> ptr;
+    using ptr = std::shared_ptr<LogFormatter>;
     LogFormatter(const std::string &pattern);
 
     std::string format(std::shared_ptr<Logger> logger, LogLevel::Level level,
                        LogEvent::ptr event);
 
   public:
-    class FormatItem {
+    class FormatItem { // 格式类型
       public:
-        typedef std::shared_ptr<FormatItem> ptr;
+        using ptr = std::shared_ptr<FormatItem>;
         virtual ~FormatItem() {}
         virtual void format(std::ostream &os, std::shared_ptr<Logger> logger,
                             LogLevel::Level level, LogEvent::ptr event) = 0;
@@ -139,8 +164,8 @@ class LogFormatter {
     const std::string getPattern() const { return m_pattern; }
 
   private:
-    std::string m_pattern;
-    std::vector<FormatItem::ptr> m_items;
+    std::string m_pattern;                // 日志格式
+    std::vector<FormatItem::ptr> m_items; // 存放各种类型的格式的数组
     bool m_error = false;
 };
 
@@ -149,7 +174,7 @@ class LogAppender {
     friend class Logger;
 
   public:
-    typedef std::shared_ptr<LogAppender> ptr;
+    using ptr = std::shared_ptr<LogAppender>;
     virtual ~LogAppender() {}
 
     virtual void log(std::shared_ptr<Logger> logger, LogLevel::Level level,
@@ -173,7 +198,7 @@ class Logger : public std::enable_shared_from_this<Logger> {
     friend class LoggerManager;
 
   public:
-    typedef std::shared_ptr<Logger> ptr;
+    using ptr = std::shared_ptr<Logger>;
 
     Logger(const std::string &name = "root");
     void log(LogLevel::Level level, LogEvent::ptr event);
@@ -209,7 +234,7 @@ class Logger : public std::enable_shared_from_this<Logger> {
 // 输出到控制台的
 class StdoutLogAppender : public LogAppender {
   public:
-    typedef std::shared_ptr<StdoutLogAppender> ptr;
+    using ptr = std::shared_ptr<StdoutLogAppender>;
     void log(Logger::ptr logger, LogLevel::Level level,
              LogEvent::ptr event) override;
     std::string toYamlString() override;
@@ -218,7 +243,7 @@ class StdoutLogAppender : public LogAppender {
 // 输出到文件的
 class FileLogAppender : public LogAppender {
   public:
-    typedef std::shared_ptr<FileLogAppender> ptr;
+    using ptr = std::shared_ptr<FileLogAppender>;
     FileLogAppender(const std::string &filename);
     void log(Logger::ptr logger, LogLevel::Level level,
              LogEvent::ptr event) override;
@@ -245,7 +270,7 @@ class LoggerManager {
     Logger::ptr m_root;
 };
 
-typedef sylar::singleton<LoggerManager> LoggerMgr;
+using LoggerMgr = sylar::singleton<LoggerManager>;
 
 } // namespace sylar
 
